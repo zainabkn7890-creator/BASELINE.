@@ -1,0 +1,2736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SoftRead — AI Reading Platform for Every Mind</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* =========================================
+     CSS VARIABLES & RESET
+  ========================================= */
+  :root {
+    --bg: #f7f4ef;
+    --bg-card: #ffffff;
+    --text: #1a1a1a;
+    --text-muted: #6b7280;
+    --accent: #7c6ff7;
+    --accent-soft: #ede9ff;
+    --accent2: #f4845f;
+    --accent3: #4caf89;
+    --cream: #fdf6e3;
+    --blue-soft: #e8f4fd;
+    --pink-soft: #fce4f0;
+    --border: #e5e0d8;
+    --shadow: 0 4px 24px rgba(0,0,0,0.07);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.12);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --font-body: 'DM Sans', sans-serif;
+    --font-display: 'DM Serif Display', serif;
+    --font-dyslexic: 'Atkinson Hyperlegible', sans-serif;
+    --sidebar-w: 220px;
+    --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  [data-dark="true"] {
+    --bg: #0f0f13;
+    --bg-card: #1a1a24;
+    --text: #f0ede8;
+    --text-muted: #9ca3af;
+    --border: #2a2a38;
+    --cream: #1e1c15;
+    --blue-soft: #0d1f2d;
+    --pink-soft: #2a1220;
+    --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  [data-dyslexia="true"] {
+    --font-body: 'Atkinson Hyperlegible', sans-serif;
+    --font-display: 'Atkinson Hyperlegible', sans-serif;
+    letter-spacing: 0.04em;
+    line-height: 1.85;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    transition: background var(--transition), color var(--transition);
+    min-height: 100vh;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  /* =========================================
+     UTILITY
+  ========================================= */
+  .hidden { display: none !important; }
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .gap-2 { gap: 0.5rem; }
+  .gap-3 { gap: 0.75rem; }
+  .gap-4 { gap: 1rem; }
+
+  /* =========================================
+     NAVBAR
+  ========================================= */
+  #navbar {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    background: rgba(247,244,239,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background var(--transition);
+  }
+  [data-dark="true"] #navbar {
+    background: rgba(15,15,19,0.92);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--accent);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .nav-logo span {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    background: var(--accent);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color var(--transition);
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .btn { 
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+    padding: 0.55rem 1.25rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+    border: none;
+    font-family: var(--font-body);
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(124,111,247,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(124,111,247,0.45); }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1.5px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { background: var(--accent-soft); color: var(--accent); }
+  .btn-lg { padding: 0.85rem 2rem; font-size: 1rem; border-radius: var(--radius); }
+  .icon-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    transition: all var(--transition);
+    color: var(--text-muted);
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .toggle-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .toggle {
+    position: relative;
+    width: 42px; height: 22px;
+  }
+  .toggle input { opacity:0; width:0; height:0; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 22px;
+    transition: background var(--transition);
+  }
+  .toggle-slider::before {
+    content:'';
+    position: absolute;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    top: 3px; left: 3px;
+    transition: transform var(--transition);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .toggle input:checked + .toggle-slider { background: var(--accent); }
+  .toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+  /* =========================================
+     LANDING PAGE
+  ========================================= */
+  #landing {
+    padding-top: 64px;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: calc(100vh - 64px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(124,111,247,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(244,132,95,0.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 60% 80%, rgba(76,175,137,0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hero-content {
+    max-width: 680px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.8s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(30px); }
+    to { opacity:1; transform: translateY(0); }
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: 0.35rem 1rem;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+    border: 1px solid rgba(124,111,247,0.2);
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 6vw, 4.2rem);
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .hero-title em {
+    color: var(--accent);
+    font-style: italic;
+  }
+  .hero-sub {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-btns {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .btn-accent2 {
+    background: var(--accent2);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(244,132,95,0.3);
+  }
+  .btn-accent2:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(244,132,95,0.4); }
+  .btn-accent3 {
+    background: var(--accent3);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(76,175,137,0.3);
+  }
+  .btn-accent3:hover { transform: translateY(-1px); }
+
+  .hero-illustration {
+    width: 200px;
+    height: 160px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .hero-ill-bg {
+    width: 160px; height: 140px;
+    background: linear-gradient(135deg, var(--accent-soft), var(--blue-soft));
+    border-radius: 50%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .hero-ill-bg svg { width: 90px; height: 90px; }
+
+  .hero-stats {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--accent);
+  }
+  .stat-label { font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.05em; text-transform: uppercase; }
+
+  /* FEATURES */
+  .section { padding: 5rem 2rem; }
+  .section-center { text-align: center; }
+  .section-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.2;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+  .section-sub {
+    color: var(--text-muted);
+    max-width: 520px;
+    margin: 0 auto 3rem;
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .feature-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 2rem;
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+    cursor: default;
+  }
+  .feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--accent);
+  }
+  .card-icon {
+    width: 52px; height: 52px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .card-icon.purple { background: var(--accent-soft); }
+  .card-icon.orange { background: #fef0e8; }
+  .card-icon.green { background: #e6f7f1; }
+  .card-icon.blue { background: var(--blue-soft); }
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+  }
+  .card-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.65;
+  }
+
+  /* Accessibility section */
+  .a11y-section {
+    background: linear-gradient(135deg, var(--accent-soft) 0%, var(--blue-soft) 100%);
+    border-radius: var(--radius);
+    padding: 3rem;
+    max-width: 1100px;
+    margin: 0 auto 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: center;
+  }
+  .a11y-title {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+  .a11y-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .a11y-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .a11y-list li::before {
+    content: '✓';
+    color: var(--accent3);
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .dyslexia-demo {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .demo-text {
+    font-size: 0.9rem;
+    line-height: 1.9;
+    letter-spacing: 0.04em;
+    color: var(--text);
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+  }
+  .demo-text .word-highlight { background: #fff59d; border-radius: 3px; padding: 0 2px; }
+  .demo-controls {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+  .demo-chip {
+    padding: 0.3rem 0.8rem;
+    border-radius: 40px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid rgba(124,111,247,0.2);
+  }
+
+  /* CTA */
+  .cta-section {
+    text-align: center;
+    padding: 5rem 2rem;
+    background: linear-gradient(135deg, var(--accent) 0%, #9c79ff 100%);
+    color: #fff;
+    margin: 0 2rem 2rem;
+    border-radius: 24px;
+  }
+  .cta-title {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #fff;
+  }
+  .cta-sub { color: rgba(255,255,255,0.8); font-size: 1rem; margin-bottom: 2rem; }
+  .btn-white {
+    background: #fff;
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
+
+  /* FOOTER */
+  footer {
+    padding: 3rem 2rem 2rem;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .footer-tagline {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    max-width: 240px;
+  }
+  .footer-col h4 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.6rem; }
+  .footer-col a {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color var(--transition);
+  }
+  .footer-col a:hover { color: var(--accent); }
+  .footer-bottom {
+    text-align: center;
+    padding: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  /* =========================================
+     APP (DASHBOARD MODE)
+  ========================================= */
+  #app {
+    display: none;
+    padding-top: 64px;
+    min-height: 100vh;
+  }
+  #app.active { display: flex; }
+
+  /* Sidebar */
+  .sidebar {
+    width: var(--sidebar-w);
+    min-height: calc(100vh - 64px);
+    background: var(--bg-card);
+    border-right: 1px solid var(--border);
+    padding: 1.5rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    position: fixed;
+    top: 64px;
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 50;
+    transition: transform var(--transition);
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all var(--transition);
+    text-decoration: none;
+  }
+  .sidebar-item:hover { background: var(--accent-soft); color: var(--accent); }
+  .sidebar-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+  .sidebar-item .si-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+  .sidebar-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 0.5rem 0.9rem 0.25rem;
+    margin-top: 0.75rem;
+  }
+
+  /* Main content */
+  .main-content {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    min-height: calc(100vh - 64px);
+    padding: 2rem;
+    transition: margin var(--transition);
+  }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-header {
+    margin-bottom: 2rem;
+  }
+  .panel-title {
+    font-family: var(--font-display);
+    font-size: 1.9rem;
+    color: var(--text);
+    margin-bottom: 0.35rem;
+  }
+  .panel-sub { color: var(--text-muted); font-size: 0.9rem; }
+
+  /* Dashboard */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+    transition: transform var(--transition);
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+  .stat-card-val {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    color: var(--text);
+  }
+  .stat-card-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+  .progress-bar-wrap {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 6px;
+    margin-top: 0.75rem;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #9c79ff);
+    border-radius: 6px;
+    transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* =========================================
+     READER MODE
+  ========================================= */
+  .reader-layout {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 1.5rem;
+    align-items: start;
+  }
+  .reader-area {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .reader-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .reader-content {
+    padding: 2rem;
+    min-height: 400px;
+    max-height: 65vh;
+    overflow-y: auto;
+    font-size: var(--reader-fontsize, 1rem);
+    line-height: var(--reader-lh, 1.8);
+    letter-spacing: var(--reader-ls, 0.02em);
+    background: var(--reader-bg, var(--bg-card));
+    transition: all var(--transition);
+    cursor: text;
+  }
+  .reader-content p { margin-bottom: 1em; }
+  .reader-word {
+    display: inline;
+    border-radius: 3px;
+    padding: 0 1px;
+    transition: background 0.15s;
+  }
+  .reader-word.speaking { background: #fff176; }
+  .reader-word.cursor { text-decoration: underline; text-decoration-color: var(--accent); }
+  .focus-mode-line {
+    background: rgba(124,111,247,0.08);
+    border-left: 3px solid var(--accent);
+    padding-left: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .reader-controls {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .ctrl-section-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+  }
+  .ctrl-row { display: flex; align-items: center; gap: 0.75rem; }
+  .ctrl-slider {
+    flex: 1;
+    appearance: none;
+    -webkit-appearance: none;
+    height: 5px;
+    border-radius: 5px;
+    background: var(--border);
+    outline: none;
+  }
+  .ctrl-slider::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 17px; height: 17px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(124,111,247,0.4);
+  }
+  .ctrl-val { font-size: 0.82rem; color: var(--text-muted); min-width: 30px; text-align: right; }
+  select.ctrl-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    outline: none;
+    cursor: pointer;
+  }
+  .bg-swatches {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .bg-swatch {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color var(--transition), transform var(--transition);
+  }
+  .bg-swatch:hover, .bg-swatch.active { border-color: var(--accent); transform: scale(1.15); }
+  .play-controls {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+  .play-btn {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border: none;
+    font-family: var(--font-body);
+    transition: all var(--transition);
+  }
+  .play-btn.main {
+    width: 54px; height: 54px;
+    font-size: 1.3rem;
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(124,111,247,0.4);
+  }
+  .play-btn.main:hover { transform: scale(1.08); }
+  .play-btn.secondary {
+    background: var(--bg);
+    color: var(--text-muted);
+    border: 1.5px solid var(--border);
+  }
+  .play-btn.secondary:hover { border-color: var(--accent); color: var(--accent); }
+  select.ctrl-select {
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .reading-mode-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .mode-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.82rem;
+    font-family: var(--font-body);
+    transition: all var(--transition);
+  }
+  .mode-toggle-btn.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+  .mode-toggle-btn:hover { border-color: var(--accent); }
+
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    color: var(--text-muted);
+  }
+  .upload-area:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .upload-area input { display: none; }
+
+  /* Stats mini */
+  .reading-stats-bar {
+    display: flex;
+    gap: 1.5rem;
+    padding: 0.85rem 1.25rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+  .rstat { display: flex; align-items: center; gap: 0.4rem; }
+  .rstat-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .rstat-val { font-weight: 700; color: var(--text); }
+
+  /* =========================================
+     VOICE COMMAND
+  ========================================= */
+  #voiceBtn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #9c79ff);
+    color: #fff;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 24px rgba(124,111,247,0.45);
+    border: none;
+    z-index: 999;
+    transition: all var(--transition);
+  }
+  #voiceBtn:hover { transform: scale(1.08); }
+  #voiceBtn.listening {
+    animation: pulse 1.5s ease-in-out infinite;
+    background: linear-gradient(135deg, #e53935, #f4845f);
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 6px 24px rgba(229,57,53,0.4); }
+    50% { box-shadow: 0 6px 36px rgba(229,57,53,0.7), 0 0 0 12px rgba(229,57,53,0.12); }
+  }
+  #voiceToast {
+    position: fixed;
+    bottom: 6.5rem;
+    right: 2rem;
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.75rem 1.25rem;
+    box-shadow: var(--shadow-lg);
+    font-size: 0.85rem;
+    max-width: 260px;
+    z-index: 998;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all var(--transition);
+    pointer-events: none;
+  }
+  #voiceToast.show { opacity:1; transform: translateY(0); }
+  .voice-detected { color: var(--accent); font-weight: 700; }
+
+  /* =========================================
+     QUIZ MODE
+  ========================================= */
+  .quiz-area {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .quiz-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+    padding: 2.5rem;
+    margin-bottom: 1.5rem;
+    animation: fadeUp 0.4s ease both;
+  }
+  .quiz-q-num {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+  .quiz-q {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1.75rem;
+    line-height: 1.5;
+  }
+  .quiz-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .quiz-option {
+    padding: 0.9rem 1.25rem;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: all var(--transition);
+    text-align: left;
+    font-family: var(--font-body);
+  }
+  .quiz-option:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .quiz-option.correct { border-color: var(--accent3); background: #e6f7f1; color: #2e7d32; }
+  .quiz-option.wrong { border-color: #e53935; background: #ffebee; color: #c62828; }
+  .quiz-feedback {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.88rem;
+    line-height: 1.6;
+    display: none;
+  }
+  .quiz-feedback.show { display: block; }
+  .quiz-feedback.correct { background: #e6f7f1; border: 1px solid #a5d6a7; color: #2e7d32; }
+  .quiz-feedback.wrong { background: #ffebee; border: 1px solid #ef9a9a; color: #c62828; }
+  .quiz-progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--border);
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .quiz-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), #9c79ff);
+    border-radius: 8px;
+    transition: width 0.4s ease;
+  }
+
+  /* =========================================
+     DIAGNOSTIC
+  ========================================= */
+  .diag-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .diag-step {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    animation: fadeUp 0.4s ease both;
+  }
+  .diag-q { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: 1.5rem; }
+  .diag-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .diag-opt {
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all var(--transition);
+  }
+  .diag-opt:hover, .diag-opt.selected { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+  .diag-progress-dots {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .diag-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background var(--transition);
+  }
+  .diag-dot.active { background: var(--accent); }
+  .diag-dot.done { background: var(--accent3); }
+
+  /* =========================================
+     ANALYTICS
+  ========================================= */
+  .analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+  }
+  .analytics-card {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .mini-chart {
+    margin-top: 1rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 50px;
+  }
+  .bar-segment {
+    flex: 1;
+    background: linear-gradient(180deg, var(--accent), rgba(124,111,247,0.3));
+    border-radius: 4px 4px 0 0;
+    transition: height 0.6s cubic-bezier(0.4,0,0.2,1);
+  }
+  .badges-grid {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+  .badge-item {
+    text-align: center;
+    padding: 0.75rem;
+    background: var(--bg-card);
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    box-shadow: var(--shadow);
+    min-width: 80px;
+  }
+  .badge-icon { font-size: 1.8rem; }
+  .badge-name { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; font-weight: 600; }
+
+  /* =========================================
+     SETTINGS
+  ========================================= */
+  .settings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  .settings-section {
+    background: var(--bg-card);
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-row-label { font-size: 0.88rem; color: var(--text); }
+  .settings-row-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem; }
+
+  /* ADAPTIVE MODE */
+  .adaptive-results {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  .adaptive-feature {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    box-shadow: var(--shadow);
+  }
+  .adaptive-feature.enabled { border-color: var(--accent3); background: #e6f7f1; }
+  .adaptive-feature-icon { font-size: 1.3rem; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; }
+    .reader-layout { grid-template-columns: 1fr; }
+    .a11y-section { grid-template-columns: 1fr; }
+    footer { grid-template-columns: 1fr 1fr; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 500px) {
+    footer { grid-template-columns: 1fr; }
+    .hero-title { font-size: 2rem; }
+    .diag-options { grid-template-columns: 1fr; }
+  }
+
+  /* Sylable & Bionic */
+  .bionic b { font-weight: 900; color: var(--text); }
+
+  /* Smooth scrollbar */
+  .reader-content::-webkit-scrollbar { width: 5px; }
+  .reader-content::-webkit-scrollbar-track { background: transparent; }
+  .reader-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 5px; }
+
+  /* Focus line overlay */
+  .focus-overlay-line {
+    position: absolute;
+    left: 0; right: 0;
+    height: 2.2em;
+    background: rgba(124,111,247,0.08);
+    border-left: 3px solid var(--accent);
+    pointer-events: none;
+    transition: top 0.15s ease;
+  }
+
+  /* toast/notification */
+  .toast {
+    position: fixed;
+    top: 80px; right: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--accent);
+    color: #fff;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg);
+    z-index: 9999;
+    transform: translateX(120%);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  }
+  .toast.show { transform: translateX(0); }
+
+  /* =========================================
+     GAMIFICATION EXTRAS
+  ========================================= */
+  .streak-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: linear-gradient(135deg, #ff9800, #f44336);
+    color: #fff;
+    padding: 0.35rem 0.9rem;
+    border-radius: 40px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .points-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: linear-gradient(135deg, var(--accent), #9c79ff);
+    color: #fff;
+    padding: 0.35rem 0.9rem;
+    border-radius: 40px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  /* Confidence meter */
+  .confidence-meter {
+    margin-top: 1rem;
+  }
+  .conf-label {
+    display: flex; justify-content: space-between;
+    font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.4rem;
+  }
+  .conf-bar-wrap {
+    height: 10px; background: var(--border); border-radius: 10px; overflow: hidden;
+  }
+  .conf-bar {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #f4845f, #4caf89);
+    transition: width 0.8s ease;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a class="nav-logo" href="#" onclick="showLanding()">
+    SoftRead <span>BETA</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features-section">Features</a></li>
+    <li><a href="#a11y-section">Accessibility</a></li>
+    <li><a href="#" onclick="showApp('settings'); return false;">Settings</a></li>
+  </ul>
+  <div class="nav-actions">
+    <label class="toggle-wrap" title="Dyslexia Mode">
+      <label class="toggle">
+        <input type="checkbox" id="dyslexiaToggle" onchange="toggleDyslexia(this.checked)">
+        <span class="toggle-slider"></span>
+      </label>
+      <span>Dyslexia Mode</span>
+    </label>
+    <button class="icon-btn" onclick="toggleDark()" title="Toggle Dark Mode">🌙</button>
+    <button class="btn btn-outline" onclick="showApp('reader')">Open App</button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     LANDING PAGE
+============================================================ -->
+<div id="landing">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">✨ Accessibility-First Reading Platform</div>
+      <h1 class="hero-title">Read <em>Smarter.</em><br>Read <em>Freely.</em></h1>
+      <p class="hero-sub">An AI-powered reading assistant for PDFs, images, and text — built for accessibility, dyslexia support, and voice control.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary btn-lg" onclick="showApp('reader')">📖 Start Reading</button>
+        <button class="btn btn-accent2 btn-lg" onclick="startVoiceMode()">🎙️ Try Voice Mode</button>
+        <button class="btn btn-accent3 btn-lg" onclick="document.getElementById('dyslexiaToggle').click()">♿ Enable Dyslexia Mode</button>
+      </div>
+      <div class="hero-illustration">
+        <div class="hero-ill-bg">
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Person with headphones illustration -->
+            <circle cx="50" cy="28" r="14" fill="#7c6ff7" opacity="0.9"/>
+            <rect x="33" y="44" width="34" height="30" rx="10" fill="#7c6ff7" opacity="0.8"/>
+            <rect x="23" y="44" width="12" height="22" rx="6" fill="#f4845f"/>
+            <rect x="65" y="44" width="12" height="22" rx="6" fill="#f4845f"/>
+            <path d="M30 28 Q50 10 70 28" stroke="#4caf89" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <!-- Sound waves -->
+            <path d="M75 40 Q82 50 75 60" stroke="#7c6ff7" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+            <path d="M80 35 Q90 50 80 65" stroke="#7c6ff7" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.4"/>
+            <path d="M85 30 Q98 50 85 70" stroke="#7c6ff7" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item"><div class="stat-num">15+</div><div class="stat-label">Accessibility Features</div></div>
+        <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Free to Use</div></div>
+        <div class="stat-item"><div class="stat-num">8+</div><div class="stat-label">Voice Commands</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION -->
+  <section class="section section-center" id="features-section">
+    <div class="section-label">What You Can Do</div>
+    <h2 class="section-title">Every Feature You Need</h2>
+    <p class="section-sub">Built from the ground up for learners with dyslexia, ADHD, and visual processing differences.</p>
+    <div class="cards-grid">
+      <div class="feature-card">
+        <div class="card-icon purple">📄</div>
+        <div class="card-title">PDF Reader</div>
+        <div class="card-desc">Upload PDFs and read with customizable fonts, spacing, and voice narration. Extract text instantly.</div>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon orange">🔍</div>
+        <div class="card-title">Image Reader (OCR)</div>
+        <div class="card-desc">Extract and read text from images instantly using optical character recognition technology.</div>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon green">🎙️</div>
+        <div class="card-title">Voice Reader</div>
+        <div class="card-desc">Listen with natural AI voice. Control reading with voice commands hands-free.</div>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon blue">🎯</div>
+        <div class="card-title">Focus Mode</div>
+        <div class="card-desc">Remove distractions and highlight one line at a time for better concentration and retention.</div>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon purple">🧠</div>
+        <div class="card-title">Bionic Reading</div>
+        <div class="card-desc">Bold the first letters of each word to guide the eye through text more efficiently.</div>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon orange">🃏</div>
+        <div class="card-title">Quiz Mode</div>
+        <div class="card-desc">Auto-generate quizzes from your reading. MCQ, true/false with instant feedback.</div>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon green">📊</div>
+        <div class="card-title">Reading Analytics</div>
+        <div class="card-desc">Track words per minute, time spent, progress percentage, and repeated words.</div>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon blue">🎮</div>
+        <div class="card-title">Adaptive Mode</div>
+        <div class="card-desc">Answer 4 questions and we auto-configure the perfect reading environment for you.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACCESSIBILITY SECTION -->
+  <section class="section" id="a11y-section">
+    <div class="a11y-section">
+      <div>
+        <div class="section-label">For Every Learner</div>
+        <h2 class="a11y-title">Designed Around Accessibility</h2>
+        <ul class="a11y-list">
+          <li>Atkinson Hyperlegible font — optimized for low-vision readers</li>
+          <li>Word-by-word highlight synced with text-to-speech</li>
+          <li>Syllable breakdown mode for complex words</li>
+          <li>Background color presets to reduce visual stress</li>
+          <li>Adjustable letter spacing and line height</li>
+          <li>Focus line mode — one line at a time</li>
+          <li>WCAG AA+ contrast throughout</li>
+          <li>Reduce motion toggle for vestibular sensitivity</li>
+        </ul>
+        <div style="margin-top: 1.5rem">
+          <button class="btn btn-primary" onclick="showApp('reader')">Try It Now →</button>
+        </div>
+      </div>
+      <div class="dyslexia-demo">
+        <div style="font-size:0.72rem; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); margin-bottom:0.75rem;">Live Demo — Dyslexia Mode</div>
+        <div class="demo-text">
+          The <span class="word-highlight">quick</span> brown fox jumps over the lazy dog. Reading becomes easier when each word has space to breathe and the font is designed for clarity.
+        </div>
+        <div class="demo-controls">
+          <span class="demo-chip">Atkinson Font ✓</span>
+          <span class="demo-chip">1.85 line height ✓</span>
+          <span class="demo-chip">Word highlight ✓</span>
+          <span class="demo-chip">Cream bg ✓</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-section" style="max-width:1100px; margin: 0 auto 3rem; margin-left: 2rem; margin-right: 2rem;">
+    <h2 class="cta-title">Start Reading Freely Today</h2>
+    <p class="cta-sub">No account needed. Just open the app and start reading comfortably.</p>
+    <button class="btn btn-white btn-lg" onclick="showApp('diagnostic')">🧠 Take Adaptive Diagnostic</button>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>
+      <div class="footer-logo">SoftRead</div>
+      <p class="footer-tagline">An AI-powered reading platform built with accessibility at its core. For every mind, every learner.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Product</h4>
+      <ul>
+        <li><a href="#" onclick="showApp('reader'); return false;">Reader Mode</a></li>
+        <li><a href="#" onclick="showApp('quiz'); return false;">Quiz Mode</a></li>
+        <li><a href="#" onclick="showApp('analytics'); return false;">Analytics</a></li>
+        <li><a href="#" onclick="showApp('settings'); return false;">Settings</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Accessibility</h4>
+      <ul>
+        <li><a href="#">Accessibility Statement</a></li>
+        <li><a href="#">WCAG Compliance</a></li>
+        <li><a href="#">Dyslexia Support</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Privacy</a></li>
+        <li><a href="mailto:hello@softread.app">Contact</a></li>
+      </ul>
+    </div>
+  </footer>
+  <div class="footer-bottom">© 2025 SoftRead. Built with ♿ accessibility first.</div>
+
+</div><!-- end #landing -->
+
+
+<!-- ============================================================
+     APP DASHBOARD
+============================================================ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-label">Learning</div>
+    <div class="sidebar-item" onclick="showApp('dashboard')" id="nav-dashboard">
+      <span class="si-icon">🏠</span> Dashboard
+    </div>
+    <div class="sidebar-item" onclick="showApp('diagnostic')" id="nav-diagnostic">
+      <span class="si-icon">🧠</span> Smart Setup
+    </div>
+    <div class="sidebar-item" onclick="showApp('reader')" id="nav-reader">
+      <span class="si-icon">📖</span> Reader Mode
+    </div>
+    <div class="sidebar-item" onclick="showApp('quiz')" id="nav-quiz">
+      <span class="si-icon">❓</span> Quiz Mode
+    </div>
+    <div class="sidebar-label">Insights</div>
+    <div class="sidebar-item" onclick="showApp('analytics')" id="nav-analytics">
+      <span class="si-icon">📊</span> Analytics
+    </div>
+    <div class="sidebar-item" onclick="showApp('settings')" id="nav-settings">
+      <span class="si-icon">⚙️</span> Settings
+    </div>
+    <div style="flex:1"></div>
+    <div class="sidebar-item" onclick="showLanding()">
+      <span class="si-icon">🏡</span> Back to Home
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="panel" id="panel-dashboard">
+      <div class="panel-header">
+        <h1 class="panel-title">Welcome back 👋</h1>
+        <p class="panel-sub">Your reading companion is ready. Continue where you left off.</p>
+        <div style="display:flex; gap:0.75rem; margin-top:0.75rem; flex-wrap:wrap; align-items:center;">
+          <div class="streak-badge">🔥 5-day streak</div>
+          <div class="points-pill">⭐ 1,250 pts</div>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon">📖</div>
+          <div class="stat-card-val" id="dash-words">0</div>
+          <div class="stat-card-label">Words Read Today</div>
+          <div class="progress-bar-wrap"><div class="progress-bar" style="width:35%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">⏱️</div>
+          <div class="stat-card-val" id="dash-time">0m</div>
+          <div class="stat-card-label">Reading Time Today</div>
+          <div class="progress-bar-wrap"><div class="progress-bar" style="width:20%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">🎯</div>
+          <div class="stat-card-val" id="dash-wpm">0</div>
+          <div class="stat-card-label">Avg WPM</div>
+          <div class="progress-bar-wrap"><div class="progress-bar" style="width:60%"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon">✅</div>
+          <div class="stat-card-val">0</div>
+          <div class="stat-card-label">Quizzes Passed</div>
+          <div class="progress-bar-wrap"><div class="progress-bar" style="width:10%"></div></div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg-card); border-radius:var(--radius); border:1.5px solid var(--border); padding:1.5rem; box-shadow:var(--shadow);">
+        <div class="ctrl-section-label">Confidence Meter</div>
+        <div class="confidence-meter">
+          <div class="conf-label"><span>Reading Confidence</span><span id="confVal">65%</span></div>
+          <div class="conf-bar-wrap"><div class="conf-bar" id="confBar" style="width:65%"></div></div>
+        </div>
+        <div style="margin-top:1.5rem;">
+          <div class="ctrl-section-label">Quick Start</div>
+          <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.5rem;">
+            <button class="btn btn-primary" onclick="showApp('reader')">📖 Open Reader</button>
+            <button class="btn btn-outline" onclick="showApp('quiz')">❓ Take Quiz</button>
+            <button class="btn btn-outline" onclick="showApp('diagnostic')">🧠 Smart Setup</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- end dashboard -->
+
+
+    <!-- ===== SMART DIAGNOSTIC ===== -->
+    <div class="panel" id="panel-diagnostic">
+      <div class="panel-header">
+        <h1 class="panel-title">Smart Adaptive Setup 🧠</h1>
+        <p class="panel-sub">Answer 4 quick questions. We'll configure SoftRead perfectly for you.</p>
+      </div>
+      <div class="diag-wrap" id="diagWrap">
+        <!-- Injected by JS -->
+      </div>
+    </div>
+
+
+    <!-- ===== READER MODE ===== -->
+    <div class="panel" id="panel-reader">
+      <div class="panel-header">
+        <h1 class="panel-title">Reader Mode 📖</h1>
+        <p class="panel-sub">Upload text, paste content, or type to start reading with full accessibility support.</p>
+      </div>
+
+      <!-- Upload area (shown when empty) -->
+      <div id="uploadArea" class="upload-area" onclick="document.getElementById('fileInput').click()" style="margin-bottom:1.5rem;">
+        <input type="file" id="fileInput" accept=".txt,.pdf" onchange="handleFileUpload(event)">
+        <div style="font-size:2rem; margin-bottom:0.5rem;">📁</div>
+        <div style="font-weight:700; color:var(--text); margin-bottom:0.25rem;">Drop a file or click to upload</div>
+        <div style="font-size:0.82rem; color:var(--text-muted);">Supports .txt files — or paste text below</div>
+      </div>
+
+      <div class="reader-layout">
+        <!-- READING AREA -->
+        <div>
+          <div class="reader-area">
+            <div class="reader-toolbar">
+              <textarea id="pasteInput" placeholder="Paste or type your text here..." rows="2"
+                style="flex:1; border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:0.5rem 0.75rem; font-family:var(--font-body); font-size:0.85rem; resize:none; background:var(--bg); color:var(--text); outline:none;"
+                onkeydown="if(event.ctrlKey&&event.key==='Enter'){loadReaderText(); return false;}"></textarea>
+              <button class="btn btn-primary" onclick="loadReaderText()">Load Text</button>
+            </div>
+            <div id="readerContent" class="reader-content">
+              <p style="color:var(--text-muted); font-style:italic;">Your text will appear here. Paste text above or upload a file to begin reading.</p>
+            </div>
+            <div class="reading-stats-bar">
+              <div class="rstat"><div class="rstat-dot"></div>Words: <span class="rstat-val" id="wordCount">0</span></div>
+              <div class="rstat"><div class="rstat-dot" style="background:var(--accent2)"></div>Progress: <span class="rstat-val" id="progressPct">0%</span></div>
+              <div class="rstat"><div class="rstat-dot" style="background:var(--accent3)"></div>WPM: <span class="rstat-val" id="currentWpm">—</span></div>
+              <div class="rstat"><div class="rstat-dot" style="background:#ff9800"></div>Time: <span class="rstat-val" id="readingTime">0s</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTROLS PANEL -->
+        <div class="reader-controls">
+          <!-- Play controls -->
+          <div>
+            <div class="ctrl-section-label">Playback</div>
+            <div class="play-controls">
+              <button class="play-btn secondary" onclick="replayWord()" title="Replay">↩</button>
+              <button class="play-btn main" id="playPauseBtn" onclick="togglePlayPause()">▶</button>
+              <button class="play-btn secondary" onclick="stopReading()" title="Stop">■</button>
+            </div>
+          </div>
+
+          <!-- Speed -->
+          <div>
+            <div class="ctrl-section-label">Reading Speed</div>
+            <div class="ctrl-row">
+              <span style="font-size:0.78rem; color:var(--text-muted)">0.5×</span>
+              <input type="range" class="ctrl-slider" id="speedSlider" min="0.5" max="2" step="0.1" value="1" oninput="setSpeed(this.value)">
+              <span style="font-size:0.78rem; color:var(--text-muted)">2×</span>
+              <span class="ctrl-val" id="speedVal">1×</span>
+            </div>
+          </div>
+
+          <!-- Font size -->
+          <div>
+            <div class="ctrl-section-label">Font Size</div>
+            <div class="ctrl-row">
+              <span style="font-size:0.78rem; color:var(--text-muted)">A</span>
+              <input type="range" class="ctrl-slider" id="fontSlider" min="14" max="28" step="1" value="16" oninput="setFontSize(this.value)">
+              <span style="font-size:0.78rem; color:var(--text-muted)">A</span>
+              <span class="ctrl-val" id="fontVal">16px</span>
+            </div>
+          </div>
+
+          <!-- Line height -->
+          <div>
+            <div class="ctrl-section-label">Line Height</div>
+            <div class="ctrl-row">
+              <input type="range" class="ctrl-slider" id="lhSlider" min="1.4" max="2.4" step="0.1" value="1.8" oninput="setLineHeight(this.value)">
+              <span class="ctrl-val" id="lhVal">1.8</span>
+            </div>
+          </div>
+
+          <!-- Letter spacing -->
+          <div>
+            <div class="ctrl-section-label">Letter Spacing</div>
+            <div class="ctrl-row">
+              <input type="range" class="ctrl-slider" id="lsSlider" min="0" max="0.1" step="0.01" value="0.02" oninput="setLetterSpacing(this.value)">
+              <span class="ctrl-val" id="lsVal">0.02em</span>
+            </div>
+          </div>
+
+          <!-- Voice selection -->
+          <div>
+            <div class="ctrl-section-label">Voice</div>
+            <select class="ctrl-select" id="voiceSelect" onchange="setVoice(this.value)">
+              <option>Loading voices...</option>
+            </select>
+          </div>
+
+          <!-- Background color -->
+          <div>
+            <div class="ctrl-section-label">Background</div>
+            <div class="bg-swatches">
+              <div class="bg-swatch active" style="background:#ffffff;" onclick="setBg('#ffffff', this)" title="White"></div>
+              <div class="bg-swatch" style="background:#fdf6e3;" onclick="setBg('#fdf6e3', this)" title="Cream"></div>
+              <div class="bg-swatch" style="background:#e8f4fd;" onclick="setBg('#e8f4fd', this)" title="Blue"></div>
+              <div class="bg-swatch" style="background:#fce4f0;" onclick="setBg('#fce4f0', this)" title="Pink"></div>
+              <div class="bg-swatch" style="background:#f0f0f0;" onclick="setBg('#f0f0f0', this)" title="Gray"></div>
+            </div>
+          </div>
+
+          <!-- Reading modes -->
+          <div>
+            <div class="ctrl-section-label">Reading Modes</div>
+            <div class="reading-mode-btns">
+              <button class="mode-toggle-btn" id="btnFocusMode" onclick="toggleFocusMode()">🎯 Focus Line Mode</button>
+              <button class="mode-toggle-btn" id="btnBionic" onclick="toggleBionic()">⚡ Bionic Reading</button>
+              <button class="mode-toggle-btn" id="btnSyllable" onclick="toggleSyllable()">🔤 Syllable Mode</button>
+              <button class="mode-toggle-btn" id="btnWordClick" onclick="toggleWordClick()">👆 Click-to-Pronounce</button>
+            </div>
+          </div>
+        </div><!-- end reader-controls -->
+      </div><!-- end reader-layout -->
+    </div><!-- end panel-reader -->
+
+
+    <!-- ===== QUIZ MODE ===== -->
+    <div class="panel" id="panel-quiz">
+      <div class="panel-header">
+        <h1 class="panel-title">Quiz Mode ❓</h1>
+        <p class="panel-sub">Test your understanding. Questions adapt to your level.</p>
+      </div>
+      <div class="quiz-area" id="quizArea">
+        <!-- injected by JS -->
+      </div>
+    </div>
+
+
+    <!-- ===== ANALYTICS ===== -->
+    <div class="panel" id="panel-analytics">
+      <div class="panel-header">
+        <h1 class="panel-title">Reading Analytics 📊</h1>
+        <p class="panel-sub">Track your progress, speed, and confidence over time.</p>
+      </div>
+      <div class="analytics-grid">
+        <div class="analytics-card">
+          <div class="ctrl-section-label">Words Per Minute</div>
+          <div class="stat-card-val" id="a-wpm">—</div>
+          <div class="mini-chart" id="wpmChart"></div>
+        </div>
+        <div class="analytics-card">
+          <div class="ctrl-section-label">Total Words Read</div>
+          <div class="stat-card-val" id="a-words">0</div>
+          <div class="mini-chart" id="wordsChart"></div>
+        </div>
+        <div class="analytics-card">
+          <div class="ctrl-section-label">Time Spent Reading</div>
+          <div class="stat-card-val" id="a-time">0 min</div>
+          <div class="mini-chart" id="timeChart"></div>
+        </div>
+        <div class="analytics-card">
+          <div class="ctrl-section-label">Progress</div>
+          <div class="stat-card-val" id="a-prog">0%</div>
+          <div class="progress-bar-wrap" style="margin-top:1rem"><div class="progress-bar" id="a-prog-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div style="background:var(--bg-card); border-radius:var(--radius); border:1.5px solid var(--border); padding:1.5rem; box-shadow:var(--shadow);">
+        <div class="ctrl-section-label">Achievements</div>
+        <div class="badges-grid">
+          <div class="badge-item"><div class="badge-icon">🌟</div><div class="badge-name">First Read</div></div>
+          <div class="badge-item"><div class="badge-icon">🔥</div><div class="badge-name">5-Day Streak</div></div>
+          <div class="badge-item"><div class="badge-icon">⚡</div><div class="badge-name">Speed Reader</div></div>
+          <div class="badge-item" style="opacity:0.4;"><div class="badge-icon">🏆</div><div class="badge-name">Quiz Master</div></div>
+          <div class="badge-item" style="opacity:0.4;"><div class="badge-icon">📚</div><div class="badge-name">1000 Words</div></div>
+        </div>
+      </div>
+    </div><!-- end analytics -->
+
+
+    <!-- ===== SETTINGS ===== -->
+    <div class="panel" id="panel-settings">
+      <div class="panel-header">
+        <h1 class="panel-title">Settings ⚙️</h1>
+        <p class="panel-sub">Personalise your reading experience.</p>
+      </div>
+      <div class="settings-grid">
+        <div class="settings-section">
+          <div class="ctrl-section-label" style="margin-bottom:0.75rem">Accessibility</div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Dyslexia Font</div>
+              <div class="settings-row-sub">Atkinson Hyperlegible</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="s-dyslexia" onchange="toggleDyslexia(this.checked); document.getElementById('dyslexiaToggle').checked=this.checked">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">High Contrast</div>
+              <div class="settings-row-sub">Increase text contrast</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" onchange="toggleHighContrast(this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Reduce Motion</div>
+              <div class="settings-row-sub">Fewer animations</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="s-motion" onchange="toggleMotion(this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Dark Mode</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" id="s-dark" onchange="toggleDarkFromSettings(this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="ctrl-section-label" style="margin-bottom:0.75rem">Reading Defaults</div>
+          <div class="settings-row">
+            <div class="settings-row-label">Default Font Size</div>
+            <input type="number" value="16" min="12" max="32" style="width:60px; padding:0.3rem; border:1.5px solid var(--border); border-radius:6px; background:var(--bg); color:var(--text); font-family:var(--font-body);" onchange="setFontSize(this.value)">
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-label">Default Speed</div>
+            <select class="ctrl-select" style="width:100px;" onchange="setSpeed(this.value)">
+              <option value="0.75">0.75×</option>
+              <option value="1" selected>1×</option>
+              <option value="1.25">1.25×</option>
+              <option value="1.5">1.5×</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-row-label">Auto Scroll</div>
+              <div class="settings-row-sub">Scroll with reading position</div>
+            </div>
+            <label class="toggle">
+              <input type="checkbox" checked id="s-autoscroll">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="ctrl-section-label" style="margin-bottom:0.75rem">Voice Commands</div>
+          <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.8;">
+            <div>🎙️ "Start reading" — begin TTS</div>
+            <div>⏸️ "Pause" — pause reading</div>
+            <div>⏹️ "Stop" — stop completely</div>
+            <div>🔁 "Repeat" — replay last sentence</div>
+            <div>🐢 "Slower" — decrease speed</div>
+            <div>🐇 "Faster" — increase speed</div>
+            <div>💡 "Highlight on / off" — toggle highlight</div>
+          </div>
+          <div style="margin-top:1rem">
+            <button class="btn btn-outline" onclick="startVoiceMode()">🎙️ Test Voice Commands</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- end settings -->
+
+  </main><!-- end main-content -->
+</div><!-- end #app -->
+
+
+<!-- VOICE BUTTON & TOAST -->
+<button id="voiceBtn" onclick="toggleVoiceListening()" title="Voice Commands">🎙️</button>
+<div id="voiceToast">
+  <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.25rem;">Detected command:</div>
+  <div class="voice-detected" id="voiceTranscript">—</div>
+</div>
+
+<!-- NOTIFICATION TOAST -->
+<div class="toast" id="toast"></div>
+
+
+<script>
+/* ===========================================
+   STATE
+=========================================== */
+const state = {
+  dark: false,
+  dyslexia: false,
+  speaking: false,
+  paused: false,
+  voices: [],
+  selectedVoice: null,
+  speed: 1,
+  fontSize: 16,
+  lineHeight: 1.8,
+  letterSpacing: 0.02,
+  readerBg: '#ffffff',
+  words: [],
+  currentWordIdx: 0,
+  utterance: null,
+  totalWords: 0,
+  readingStartTime: null,
+  readingSeconds: 0,
+  readingTimer: null,
+  focusMode: false,
+  bionicMode: false,
+  syllableMode: false,
+  wordClickMode: false,
+  voiceListening: false,
+  recognition: null,
+  highlightEnabled: true,
+  quizIndex: 0,
+  quizScore: 0,
+  diagStep: 0,
+  diagAnswers: {},
+  sourceText: '',
+  generatedQuiz: [],
+  activeQuiz: [],
+};
+
+const SESSION_STORAGE_KEY = 'softread_session_v2';
+const QUIZ_STOPWORDS = new Set([
+  'about', 'after', 'again', 'below', 'could', 'every', 'first', 'found', 'great', 'there',
+  'their', 'these', 'those', 'while', 'where', 'which', 'would', 'because', 'before', 'being',
+  'between', 'through', 'during', 'without', 'within', 'against', 'should', 'might', 'other',
+  'about', 'from', 'into', 'also', 'than', 'then', 'that', 'this', 'with', 'have', 'your',
+  'when', 'what', 'were', 'them', 'they', 'been', 'will', 'more', 'most', 'some', 'such'
+]);
+
+/* ===========================================
+   NAV
+=========================================== */
+function showLanding() {
+  document.getElementById('landing').style.display = 'block';
+  document.getElementById('app').classList.remove('active');
+}
+
+function showApp(panel) {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('app').classList.add('active');
+  // deactivate all panels
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  const p = document.getElementById('panel-' + panel);
+  const n = document.getElementById('nav-' + panel);
+  if (p) p.classList.add('active');
+  if (n) n.classList.add('active');
+
+  if (panel === 'quiz') initQuiz();
+  if (panel === 'diagnostic') initDiagnostic();
+  if (panel === 'analytics') updateAnalytics();
+  if (panel === 'reader') initVoices();
+}
+
+/* ===========================================
+   DARK MODE
+=========================================== */
+function toggleDark() {
+  state.dark = !state.dark;
+  document.body.setAttribute('data-dark', state.dark);
+  document.querySelector('#navbar .icon-btn').textContent = state.dark ? '☀️' : '🌙';
+}
+function toggleDarkFromSettings(v) {
+  state.dark = v;
+  document.body.setAttribute('data-dark', state.dark);
+  document.querySelector('#navbar .icon-btn').textContent = state.dark ? '☀️' : '🌙';
+}
+
+/* ===========================================
+   DYSLEXIA MODE
+=========================================== */
+function toggleDyslexia(on) {
+  state.dyslexia = on;
+  document.body.setAttribute('data-dyslexia', on);
+  document.getElementById('dyslexiaToggle').checked = on;
+  const sDyslexia = document.getElementById('s-dyslexia');
+  if (sDyslexia) sDyslexia.checked = on;
+  if (on) {
+    document.getElementById('readerContent').style.fontFamily = "'Atkinson Hyperlegible', sans-serif";
+    document.body.style.background = '#fdf6e3';
+    showToast('Dyslexia Mode Enabled ✓');
+  } else {
+    document.getElementById('readerContent').style.fontFamily = '';
+    document.body.style.background = '';
+    showToast('Dyslexia Mode Disabled');
+  }
+}
+
+/* ===========================================
+   HIGH CONTRAST
+=========================================== */
+function toggleHighContrast(on) {
+  if (on) {
+    document.documentElement.style.setProperty('--text', '#000000');
+    document.documentElement.style.setProperty('--bg', '#ffffff');
+    showToast('High Contrast Enabled');
+  } else {
+    document.documentElement.style.removeProperty('--text');
+    document.documentElement.style.removeProperty('--bg');
+    showToast('High Contrast Disabled');
+  }
+}
+function toggleMotion(on) {
+  if (on) {
+    document.body.style.setProperty('--transition', '0s');
+    showToast('Reduced Motion Enabled');
+  } else {
+    document.body.style.setProperty('--transition', '0.25s cubic-bezier(0.4,0,0.2,1)');
+  }
+}
+
+/* ===========================================
+   TOAST
+=========================================== */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+function saveSession() {
+  try {
+    const payload = {
+      sourceText: state.sourceText || document.getElementById('pasteInput').value.trim(),
+      currentWordIdx: state.currentWordIdx,
+      totalWords: state.totalWords,
+      readingSeconds: state.readingSeconds,
+      speed: state.speed,
+      fontSize: state.fontSize,
+      lineHeight: state.lineHeight,
+      letterSpacing: state.letterSpacing,
+      readerBg: state.readerBg,
+      dyslexia: state.dyslexia,
+      focusMode: state.focusMode,
+      bionicMode: state.bionicMode,
+      syllableMode: state.syllableMode,
+      wordClickMode: state.wordClickMode,
+      generatedQuiz: state.generatedQuiz
+    };
+    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(payload));
+  } catch (err) {
+    // ignore storage errors
+  }
+}
+
+function restoreSession() {
+  let raw;
+  try {
+    raw = localStorage.getItem(SESSION_STORAGE_KEY);
+  } catch (err) {
+    return;
+  }
+  if (!raw) return;
+
+  let saved;
+  try {
+    saved = JSON.parse(raw);
+  } catch (err) {
+    return;
+  }
+
+  if (!saved || !saved.sourceText) return;
+
+  state.speed = Number(saved.speed) || 1;
+  state.fontSize = Number(saved.fontSize) || 16;
+  state.lineHeight = Number(saved.lineHeight) || 1.8;
+  state.letterSpacing = Number(saved.letterSpacing) || 0.02;
+  state.readerBg = saved.readerBg || '#ffffff';
+  state.readingSeconds = Number(saved.readingSeconds) || 0;
+  state.generatedQuiz = Array.isArray(saved.generatedQuiz) ? saved.generatedQuiz : [];
+
+  document.getElementById('speedSlider').value = state.speed;
+  document.getElementById('speedVal').textContent = state.speed.toFixed(1) + '×';
+  document.getElementById('fontSlider').value = state.fontSize;
+  document.getElementById('fontVal').textContent = state.fontSize + 'px';
+  document.getElementById('lhSlider').value = state.lineHeight;
+  document.getElementById('lhVal').textContent = state.lineHeight.toFixed(1);
+  document.getElementById('lsSlider').value = state.letterSpacing;
+  document.getElementById('lsVal').textContent = state.letterSpacing.toFixed(2) + 'em';
+
+  const bgSwatches = Array.from(document.querySelectorAll('.bg-swatch'));
+  bgSwatches.forEach((el) => {
+    const bg = (el.getAttribute('style') || '').toLowerCase();
+    el.classList.toggle('active', bg.includes((state.readerBg || '').toLowerCase()));
+  });
+
+  if (saved.dyslexia) {
+    toggleDyslexia(true);
+  }
+
+  document.getElementById('pasteInput').value = saved.sourceText;
+  loadReaderText({
+    rawText: saved.sourceText,
+    restorePosition: true,
+    wordIdx: Number(saved.currentWordIdx) || 0,
+    silent: true
+  });
+
+  state.focusMode = !!saved.focusMode;
+  state.bionicMode = !!saved.bionicMode;
+  state.syllableMode = !!saved.syllableMode;
+  state.wordClickMode = !!saved.wordClickMode;
+  document.getElementById('btnFocusMode').classList.toggle('active', state.focusMode);
+  document.getElementById('btnBionic').classList.toggle('active', state.bionicMode);
+  document.getElementById('btnSyllable').classList.toggle('active', state.syllableMode);
+  document.getElementById('btnWordClick').classList.toggle('active', state.wordClickMode);
+  renderWords();
+  updateReadingStats();
+  showToast('Session restored. Continue from where you stopped.');
+}
+
+/* ===========================================
+   FILE UPLOAD
+=========================================== */
+function handleFileUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const text = String(ev.target.result || '').slice(0, 5000);
+    document.getElementById('pasteInput').value = text;
+    loadReaderText({ rawText: text });
+  };
+  reader.readAsText(file);
+}
+
+/* ===========================================
+   READER
+=========================================== */
+function loadReaderText(options = {}) {
+  const raw = (options.rawText || document.getElementById('pasteInput').value).trim();
+  if (!raw) { showToast('Please paste some text first!'); return; }
+  document.getElementById('uploadArea').style.display = 'none';
+
+  state.sourceText = raw;
+  const words = raw.split(/\s+/).filter(w => w.length > 0);
+  state.words = words;
+  state.totalWords = words.length;
+  state.currentWordIdx = options.restorePosition ? Math.min(options.wordIdx || 0, Math.max(0, words.length - 1)) : 0;
+
+  state.generatedQuiz = generateQuizFromText(raw);
+  state.activeQuiz = [];
+
+  renderWords();
+  if (state.currentWordIdx > 0) {
+    highlightWord(state.currentWordIdx);
+  }
+  updateReadingStats();
+  if (!options.silent) {
+    startReadingTimer();
+    showToast('Text loaded! ' + words.length + ' words');
+  }
+  saveSession();
+}
+
+function renderWords(opts={}) {
+  const content = document.getElementById('readerContent');
+  const {bionic=state.bionicMode, syllable=state.syllableMode} = opts;
+  
+  let html = '';
+  const allText = state.words.join(' ');
+  // Split into paragraphs (simulate)
+  const sentences = allText.match(/[^.!?]+[.!?]+\s*/g) || [allText];
+
+  state.words = [];
+  let globalIdx = 0;
+  html = sentences.map(sentence => {
+    const ws = sentence.trim().split(/\s+/);
+    state.words.push(...ws.filter(w=>w));
+    return '<p>' + ws.map((w,i) => {
+      if (!w) return '';
+      let display = w;
+      if (bionic) {
+        const half = Math.ceil(w.length * 0.45);
+        display = `<b>${w.slice(0,half)}</b>${w.slice(half)}`;
+      }
+      if (syllable) {
+        display = syllabify(w);
+      }
+      return `<span class="reader-word" data-idx="${globalIdx++}" onclick="pronounceWord('${w.replace(/'/g,"\\'")}',this)">${display} </span>`;
+    }).join('') + '</p>';
+  }).join('');
+
+  content.innerHTML = html;
+  applyReaderStyles();
+}
+
+function syllabify(word) {
+  // Simple vowel-group split
+  const clean = word.replace(/[^a-zA-Z]/g,'');
+  if (clean.length < 4) return word;
+  const parts = clean.match(/[^aeiou]*[aeiou]+(?:[^aeiou]*$|[^aeiou](?=[^aeiou]))?/gi) || [word];
+  return parts.join('<span style="color:var(--accent);opacity:0.5">·</span>');
+}
+
+function applyReaderStyles() {
+  const c = document.getElementById('readerContent');
+  c.style.fontSize = state.fontSize + 'px';
+  c.style.lineHeight = state.lineHeight;
+  c.style.letterSpacing = state.letterSpacing + 'em';
+  c.style.background = state.readerBg;
+  if (state.dyslexia) {
+    c.style.fontFamily = "'Atkinson Hyperlegible', sans-serif";
+  }
+}
+
+function startReadingTimer() {
+  if (state.readingTimer) clearInterval(state.readingTimer);
+  state.readingStartTime = Date.now();
+  state.readingTimer = setInterval(() => {
+    state.readingSeconds++;
+    updateReadingStats();
+  }, 1000);
+}
+
+function updateReadingStats() {
+  const pct = state.totalWords > 0 ? Math.round((state.currentWordIdx / state.totalWords) * 100) : 0;
+  document.getElementById('wordCount').textContent = state.totalWords;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('readingTime').textContent = formatTime(state.readingSeconds);
+  
+  // WPM
+  const mins = state.readingSeconds / 60;
+  if (mins > 0.1 && state.currentWordIdx > 0) {
+    const wpm = Math.round(state.currentWordIdx / mins);
+    document.getElementById('currentWpm').textContent = wpm;
+    document.getElementById('dash-wpm').textContent = wpm;
+  }
+  document.getElementById('dash-words').textContent = state.currentWordIdx;
+  document.getElementById('dash-time').textContent = formatTime(state.readingSeconds);
+  saveSession();
+}
+
+function formatTime(s) {
+  if (s < 60) return s + 's';
+  return Math.floor(s/60) + 'm ' + (s%60) + 's';
+}
+
+/* ===========================================
+   TEXT-TO-SPEECH
+=========================================== */
+function initVoices() {
+  const loadVoices = () => {
+    state.voices = window.speechSynthesis.getVoices();
+    const sel = document.getElementById('voiceSelect');
+    sel.innerHTML = '';
+    state.voices.forEach((v,i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = v.name + ' (' + v.lang + ')';
+      sel.appendChild(opt);
+    });
+    if (state.voices.length > 0) state.selectedVoice = state.voices[0];
+  };
+  window.speechSynthesis.onvoiceschanged = loadVoices;
+  loadVoices();
+}
+
+function setVoice(idx) {
+  state.selectedVoice = state.voices[parseInt(idx)];
+}
+
+function setSpeed(val) {
+  state.speed = parseFloat(val);
+  document.getElementById('speedSlider').value = val;
+  document.getElementById('speedVal').textContent = parseFloat(val).toFixed(1) + '×';
+  if (state.speaking) {
+    stopReading();
+    setTimeout(resumeFromWord, 100);
+  }
+}
+
+function setFontSize(val) {
+  state.fontSize = parseInt(val);
+  document.getElementById('fontSlider').value = val;
+  document.getElementById('fontVal').textContent = val + 'px';
+  applyReaderStyles();
+}
+
+function setLineHeight(val) {
+  state.lineHeight = parseFloat(val);
+  document.getElementById('lhVal').textContent = parseFloat(val).toFixed(1);
+  applyReaderStyles();
+}
+
+function setLetterSpacing(val) {
+  state.letterSpacing = parseFloat(val);
+  document.getElementById('lsVal').textContent = parseFloat(val).toFixed(2) + 'em';
+  applyReaderStyles();
+}
+
+function setBg(color, el) {
+  state.readerBg = color;
+  document.querySelectorAll('.bg-swatch').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+  applyReaderStyles();
+}
+
+function togglePlayPause() {
+  if (!state.words.length) { showToast('Load some text first!'); return; }
+  if (state.speaking && !state.paused) {
+    pauseReading();
+  } else if (state.paused) {
+    resumeReading();
+  } else {
+    startReading();
+  }
+}
+
+function startReading() {
+  if (!state.words.length) return;
+  state.speaking = true;
+  state.paused = false;
+  document.getElementById('playPauseBtn').textContent = '⏸';
+  speakWord(state.currentWordIdx);
+}
+
+function pauseReading() {
+  state.paused = true;
+  window.speechSynthesis.pause();
+  document.getElementById('playPauseBtn').textContent = '▶';
+}
+
+function resumeReading() {
+  if (window.speechSynthesis.paused) {
+    state.paused = false;
+    window.speechSynthesis.resume();
+    document.getElementById('playPauseBtn').textContent = '⏸';
+  } else {
+    state.paused = false;
+    startReading();
+  }
+}
+
+function resumeFromWord() {
+  if (state.currentWordIdx < state.words.length) {
+    state.speaking = true;
+    speakWord(state.currentWordIdx);
+    document.getElementById('playPauseBtn').textContent = '⏸';
+  }
+}
+
+function stopReading() {
+  window.speechSynthesis.cancel();
+  state.speaking = false;
+  state.paused = false;
+  document.getElementById('playPauseBtn').textContent = '▶';
+  clearWordHighlight();
+}
+
+function replayWord() {
+  if (state.currentWordIdx > 0) {
+    state.currentWordIdx = Math.max(0, state.currentWordIdx - 1);
+    stopReading();
+    setTimeout(() => startReading(), 100);
+  }
+}
+
+function speakWord(idx) {
+  if (idx >= state.words.length) {
+    stopReading();
+    state.currentWordIdx = 0;
+    showToast('🎉 Reading complete!');
+    return;
+  }
+  // Speak chunks for natural flow
+  const chunkSize = 1;
+  const chunk = state.words.slice(idx, idx + chunkSize).join(' ');
+  
+  const utt = new SpeechSynthesisUtterance(chunk);
+  utt.rate = state.speed;
+  if (state.selectedVoice) utt.voice = state.selectedVoice;
+  
+  state.utterance = utt;
+  
+  utt.onstart = () => {
+    highlightWord(idx);
+    state.currentWordIdx = idx;
+    updateReadingStats();
+  };
+  
+  utt.onend = () => {
+    clearHighlight(idx);
+    if (!state.paused) {
+      speakWord(idx + chunkSize);
+    }
+  };
+  
+  window.speechSynthesis.speak(utt);
+}
+
+function highlightWord(idx) {
+  clearWordHighlight();
+  if (!state.highlightEnabled) return;
+  const el = document.querySelector(`[data-idx="${idx}"]`);
+  if (el) {
+    el.classList.add('speaking');
+    // Auto-scroll
+    if (document.getElementById('s-autoscroll') && document.getElementById('s-autoscroll').checked) {
+      el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+}
+
+function clearHighlight(idx) {
+  const el = document.querySelector(`[data-idx="${idx}"]`);
+  if (el) el.classList.remove('speaking');
+}
+
+function clearWordHighlight() {
+  document.querySelectorAll('.reader-word.speaking').forEach(el => el.classList.remove('speaking'));
+}
+
+function pronounceWord(word, el) {
+  if (!state.wordClickMode) return;
+  window.speechSynthesis.cancel();
+  const utt = new SpeechSynthesisUtterance(word);
+  utt.rate = state.speed;
+  if (state.selectedVoice) utt.voice = state.selectedVoice;
+  window.speechSynthesis.speak(utt);
+  el.style.background = '#ffe0b2';
+  setTimeout(() => { el.style.background = ''; }, 800);
+}
+
+/* ===========================================
+   READING MODES
+=========================================== */
+function toggleFocusMode() {
+  state.focusMode = !state.focusMode;
+  const btn = document.getElementById('btnFocusMode');
+  btn.classList.toggle('active', state.focusMode);
+  const content = document.getElementById('readerContent');
+  content.querySelectorAll('p').forEach((p, i) => {
+    if (state.focusMode && i === 0) p.classList.add('focus-mode-line');
+    else p.classList.remove('focus-mode-line');
+  });
+  showToast(state.focusMode ? 'Focus Line Mode ON' : 'Focus Line Mode OFF');
+}
+
+function toggleBionic() {
+  state.bionicMode = !state.bionicMode;
+  document.getElementById('btnBionic').classList.toggle('active', state.bionicMode);
+  if (state.words.length) renderWords();
+  showToast(state.bionicMode ? 'Bionic Reading ON' : 'Bionic Reading OFF');
+}
+
+function toggleSyllable() {
+  state.syllableMode = !state.syllableMode;
+  document.getElementById('btnSyllable').classList.toggle('active', state.syllableMode);
+  if (state.words.length) renderWords();
+  showToast(state.syllableMode ? 'Syllable Mode ON' : 'Syllable Mode OFF');
+}
+
+function toggleWordClick() {
+  state.wordClickMode = !state.wordClickMode;
+  document.getElementById('btnWordClick').classList.toggle('active', state.wordClickMode);
+  showToast(state.wordClickMode ? 'Click any word to pronounce!' : 'Click-to-Pronounce OFF');
+}
+
+/* ===========================================
+   VOICE COMMANDS
+=========================================== */
+function startVoiceMode() {
+  showApp('reader');
+  setTimeout(() => toggleVoiceListening(), 400);
+}
+
+function toggleVoiceListening() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    showToast('Voice commands not supported in this browser');
+    return;
+  }
+  if (state.voiceListening) {
+    state.recognition && state.recognition.stop();
+    state.voiceListening = false;
+    document.getElementById('voiceBtn').classList.remove('listening');
+    document.getElementById('voiceBtn').textContent = '🎙️';
+    document.getElementById('voiceToast').classList.remove('show');
+  } else {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const rec = new SR();
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = 'en-US';
+    state.recognition = rec;
+    state.voiceListening = true;
+    document.getElementById('voiceBtn').classList.add('listening');
+    document.getElementById('voiceBtn').textContent = '🔴';
+    document.getElementById('voiceToast').classList.add('show');
+    document.getElementById('voiceTranscript').textContent = 'Listening...';
+
+    rec.onresult = (e) => {
+      let interim = '';
+      let final = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) final += e.results[i][0].transcript.toLowerCase();
+        else interim += e.results[i][0].transcript.toLowerCase();
+      }
+      const cmd = (final || interim).trim();
+      document.getElementById('voiceTranscript').textContent = '"' + cmd + '"';
+      if (final) processVoiceCommand(final.trim().toLowerCase());
+    };
+    rec.onerror = () => { showToast('Voice error. Try again.'); toggleVoiceListening(); };
+    rec.start();
+  }
+}
+
+function processVoiceCommand(cmd) {
+  if (cmd.includes('start reading') || cmd.includes('start')) {
+    showToast('🎙️ Command: Start Reading');
+    if (!state.speaking) startReading();
+  } else if (cmd.includes('pause')) {
+    showToast('🎙️ Command: Pause');
+    pauseReading();
+  } else if (cmd.includes('stop')) {
+    showToast('🎙️ Command: Stop');
+    stopReading();
+  } else if (cmd.includes('repeat')) {
+    showToast('🎙️ Command: Repeat');
+    replayWord();
+  } else if (cmd.includes('slower') || cmd.includes('slow')) {
+    const newSpeed = Math.max(0.5, state.speed - 0.25);
+    setSpeed(newSpeed);
+    showToast('🎙️ Speed: ' + newSpeed.toFixed(2) + '×');
+  } else if (cmd.includes('faster') || cmd.includes('fast')) {
+    const newSpeed = Math.min(2, state.speed + 0.25);
+    setSpeed(newSpeed);
+    showToast('🎙️ Speed: ' + newSpeed.toFixed(2) + '×');
+  } else if (cmd.includes('highlight on')) {
+    state.highlightEnabled = true;
+    showToast('🎙️ Highlight ON');
+  } else if (cmd.includes('highlight off')) {
+    state.highlightEnabled = false;
+    clearWordHighlight();
+    showToast('🎙️ Highlight OFF');
+  }
+}
+
+/* ===========================================
+   QUIZ MODE
+=========================================== */
+const QUIZ_QUESTIONS = [
+  {
+    q: "Which feature helps readers track text word by word?",
+    opts: ["Bionic Reading", "Word-by-word highlight", "Syllable Mode", "Focus Line"],
+    correct: 1,
+    explanation: "Word-by-word highlight syncs with text-to-speech to show exactly which word is being read."
+  },
+  {
+    q: "What does Bionic Reading do?",
+    opts: ["Reads text aloud", "Bolds the first letters of words", "Splits words into syllables", "Changes background color"],
+    correct: 1,
+    explanation: "Bionic Reading bolds the first 40-50% of each word to help guide the eye and improve reading speed."
+  },
+  {
+    q: "Which font is optimised for dyslexic readers?",
+    opts: ["Times New Roman", "Comic Sans", "Atkinson Hyperlegible", "Arial"],
+    correct: 2,
+    explanation: "Atkinson Hyperlegible was designed by the Braille Institute specifically for readers with low vision and dyslexia."
+  },
+  {
+    q: "What is Focus Line Mode?",
+    opts: ["Highlights one line at a time", "Changes the background", "Plays audio", "Shows a dictionary"],
+    correct: 0,
+    explanation: "Focus Line Mode highlights one line at a time to reduce visual distraction and improve concentration."
+  },
+  {
+    q: "Which background colour is often recommended to reduce visual stress for dyslexic readers?",
+    opts: ["Bright white", "Cream/off-white", "Dark black", "Bright red"],
+    correct: 1,
+    explanation: "Cream or off-white backgrounds reduce the high contrast glare of pure white, easing visual stress."
+  },
+];
+
+function initQuiz() {
+  state.quizIndex = 0;
+  state.quizScore = 0;
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+  const area = document.getElementById('quizArea');
+  if (state.quizIndex >= QUIZ_QUESTIONS.length) {
+    area.innerHTML = `
+      <div class="quiz-card" style="text-align:center;">
+        <div style="font-size:3rem; margin-bottom:1rem">🎉</div>
+        <div class="quiz-q">Quiz Complete!</div>
+        <div style="font-size:1.5rem; font-weight:700; color:var(--accent); margin-bottom:1rem">${state.quizScore} / ${QUIZ_QUESTIONS.length}</div>
+        <div style="color:var(--text-muted); margin-bottom:1.5rem">${state.quizScore >= 4 ? 'Excellent work! You really know your accessibility features.' : state.quizScore >= 3 ? 'Good job! A little more practice and you\'ll ace it.' : 'Keep learning — you\'re making great progress!'}</div>
+        <button class="btn btn-primary btn-lg" onclick="initQuiz()">Try Again</button>
+      </div>`;
+    return;
+  }
+  const q = QUIZ_QUESTIONS[state.quizIndex];
+  const pct = (state.quizIndex / QUIZ_QUESTIONS.length) * 100;
+  area.innerHTML = `
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" style="width:${pct}%"></div></div>
+    <div class="quiz-card">
+      <div class="quiz-q-num">Question ${state.quizIndex + 1} of ${QUIZ_QUESTIONS.length} · Score: ${state.quizScore}</div>
+      <div class="quiz-q">${q.q}</div>
+      <div class="quiz-options" id="quizOptions">
+        ${q.opts.map((o,i) => `<button class="quiz-option" onclick="answerQuiz(${i})">${o}</button>`).join('')}
+      </div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
+    </div>`;
+}
+
+function answerQuiz(selected) {
+  const q = QUIZ_QUESTIONS[state.quizIndex];
+  const opts = document.querySelectorAll('.quiz-option');
+  const feedback = document.getElementById('quizFeedback');
+  opts.forEach(o => o.disabled = true);
+  opts[selected].classList.add(selected === q.correct ? 'correct' : 'wrong');
+  opts[q.correct].classList.add('correct');
+  
+  if (selected === q.correct) state.quizScore++;
+  
+  feedback.textContent = (selected === q.correct ? '✓ Correct! ' : '✗ Not quite. ') + q.explanation;
+  feedback.className = 'quiz-feedback show ' + (selected === q.correct ? 'correct' : 'wrong');
+  
+  setTimeout(() => {
+    state.quizIndex++;
+    renderQuizQuestion();
+  }, 2200);
+}
+
+/* ===========================================
+   DIAGNOSTIC
+=========================================== */
+const DIAG_QUESTIONS = [
+  {
+    q: "How would you describe your reading experience?",
+    opts: ["Letters sometimes move or blur", "I read slowly but accurately", "I struggle with long words", "Reading feels fine for me"]
+  },
+  {
+    q: "Which helps you read better?",
+    opts: ["Larger text", "Cream/colored background", "Hearing text read aloud", "Simpler font style"]
+  },
+  {
+    q: "What's your biggest challenge?",
+    opts: ["Staying focused on one line", "Pronouncing long words", "Reading speed", "Remembering what I read"]
+  },
+  {
+    q: "What mode of learning do you prefer?",
+    opts: ["Listening (audio)", "Visual + audio together", "Reading silently", "Interactive / gamified"]
+  }
+];
+
+function initDiagnostic() {
+  state.diagStep = 0;
+  state.diagAnswers = {};
+  renderDiagStep();
+}
+
+function renderDiagStep() {
+  const wrap = document.getElementById('diagWrap');
+  if (state.diagStep >= DIAG_QUESTIONS.length) {
+    renderDiagResults();
+    return;
+  }
+  const q = DIAG_QUESTIONS[state.diagStep];
+  const dots = DIAG_QUESTIONS.map((_,i) => 
+    `<div class="diag-dot ${i < state.diagStep ? 'done' : i === state.diagStep ? 'active' : ''}"></div>`
+  ).join('');
+  
+  wrap.innerHTML = `
+    <div class="diag-progress-dots">${dots}</div>
+    <div class="diag-step">
+      <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:0.5rem; font-weight:600;">Step ${state.diagStep+1} of ${DIAG_QUESTIONS.length}</div>
+      <div class="diag-q">${q.q}</div>
+      <div class="diag-options">
+        ${q.opts.map((o,i) => `<div class="diag-opt" onclick="selectDiagOpt(${i}, this)">${o}</div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function selectDiagOpt(idx, el) {
+  document.querySelectorAll('.diag-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  state.diagAnswers[state.diagStep] = idx;
+  setTimeout(() => {
+    state.diagStep++;
+    renderDiagStep();
+  }, 600);
+}
+
+function renderDiagResults() {
+  const features = [];
+  const a = state.diagAnswers;
+  
+  if (a[0] === 0 || a[0] === 2) features.push({ icon: '🔤', name: 'Dyslexia Font Enabled', enabled: true });
+  if (a[1] === 1) features.push({ icon: '🎨', name: 'Cream Background Set', enabled: true });
+  if (a[1] === 2 || a[2] === 2) features.push({ icon: '🔊', name: 'Auto Text-to-Speech', enabled: true });
+  if (a[2] === 0) features.push({ icon: '🎯', name: 'Focus Line Mode ON', enabled: true });
+  if (a[2] === 1) features.push({ icon: '🔤', name: 'Syllable Mode ON', enabled: true });
+  if (a[1] === 0) features.push({ icon: '🔡', name: 'Larger Font (20px)', enabled: true });
+  if (a[0] === 1) features.push({ icon: '⚡', name: 'Bionic Reading ON', enabled: true });
+  features.push({ icon: '💡', name: 'Word Highlight Sync', enabled: true });
+  
+  // Apply
+  if (features.some(f=>f.name.includes('Dyslexia'))) {
+    toggleDyslexia(true);
+    document.getElementById('dyslexiaToggle').checked = true;
+  }
+  if (features.some(f=>f.name.includes('Larger Font'))) {
+    setFontSize(20);
+  }
+  if (features.some(f=>f.name.includes('Focus Line'))) {
+    state.focusMode = true;
+    document.getElementById('btnFocusMode').classList.add('active');
+  }
+  if (features.some(f=>f.name.includes('Cream'))) {
+    state.readerBg = '#fdf6e3';
+  }
+  
+  const featHtml = features.map(f => `
+    <div class="adaptive-feature ${f.enabled ? 'enabled' : ''}">
+      <span class="adaptive-feature-icon">${f.icon}</span>
+      <span>${f.name}</span>
+      ${f.enabled ? '<span style="margin-left:auto; color:var(--accent3); font-weight:700;">✓</span>' : ''}
+    </div>`).join('');
+  
+  document.getElementById('diagWrap').innerHTML = `
+    <div class="diag-step" style="animation: fadeUp 0.5s ease both;">
+      <div style="text-align:center; margin-bottom:1.5rem">
+        <div style="font-size:3rem; margin-bottom:0.5rem">🎉</div>
+        <div style="font-size:1.2rem; font-weight:700; color:var(--text); margin-bottom:0.25rem">Your Profile is Ready!</div>
+        <div style="color:var(--text-muted); font-size:0.9rem;">We've configured SoftRead for your needs:</div>
+      </div>
+      <div class="adaptive-results">${featHtml}</div>
+      <div style="margin-top:1.5rem; text-align:center;">
+        <button class="btn btn-primary btn-lg" onclick="showApp('reader')">Start Reading Now →</button>
+        <button class="btn btn-ghost" onclick="initDiagnostic()" style="margin-left:0.75rem;">Redo Setup</button>
+      </div>
+    </div>`;
+}
+
+/* ===========================================
+   ANALYTICS
+=========================================== */
+function updateAnalytics() {
+  document.getElementById('a-wpm').textContent = document.getElementById('currentWpm').textContent || '—';
+  document.getElementById('a-words').textContent = state.totalWords;
+  document.getElementById('a-time').textContent = formatTime(state.readingSeconds);
+  const pct = state.totalWords > 0 ? Math.round((state.currentWordIdx / state.totalWords) * 100) : 0;
+  document.getElementById('a-prog').textContent = pct + '%';
+  document.getElementById('a-prog-bar').style.width = pct + '%';
+  
+  // Render mini charts
+  renderMiniChart('wpmChart', [40, 65, 80, 75, 90, 88, 95]);
+  renderMiniChart('wordsChart', [200, 450, 380, 600, 720, 680, 800]);
+  renderMiniChart('timeChart', [5, 12, 8, 15, 18, 14, 20]);
+}
+
+function renderMiniChart(id, data) {
+  const container = document.getElementById(id);
+  if (!container) return;
+  const max = Math.max(...data);
+  container.innerHTML = data.map(v => {
+    const h = Math.round((v / max) * 100);
+    return `<div class="bar-segment" style="height:${h}%;"></div>`;
+  }).join('');
+}
+
+/* ===========================================
+   INIT
+=========================================== */
+window.addEventListener('DOMContentLoaded', () => {
+  initVoices();
+  // Sidebar hamburger for mobile
+  const sidebar = document.getElementById('sidebar');
+  // add mobile menu btn
+  const menuBtn = document.createElement('button');
+  menuBtn.className = 'icon-btn';
+  menuBtn.textContent = '☰';
+  menuBtn.onclick = () => sidebar.classList.toggle('open');
+  menuBtn.style.display = 'none';
+  document.querySelector('.nav-actions').prepend(menuBtn);
+
+  const mq = window.matchMedia('(max-width:900px)');
+  const onMQ = (e) => { menuBtn.style.display = e.matches ? 'flex' : 'none'; };
+  mq.addEventListener('change', onMQ);
+  onMQ(mq);
+  
+  // Demo word highlight animation on landing
+  const demoWords = document.querySelectorAll('.demo-text .word-highlight');
+  // Already static for demo
+});
+
+// Prevent speech synthesis from stopping on page visibility change
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && state.speaking) {
+    // keep running
+  }
+});
+</script>
+</body>
+</html>
